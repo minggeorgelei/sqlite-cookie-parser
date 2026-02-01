@@ -1,0 +1,45 @@
+{
+  "name": "sqlite-cookie-parser",
+  "version": "1.0.0",
+  "description": "Extract cookies from browser profiles and convert to request headers",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "example": "tsc && node dist/example.js",
+    "prepublishOnly": "npm run build",
+    "format": "prettier --write \"src/**/*.{ts,js,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json}\""
+  },
+  "keywords": [
+    "cookie",
+    "browser",
+    "chrome",
+    "edge",
+    "firefox",
+    "sqlite",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^11.7.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^22.0.0",
+    "prettier": "^3.8.1",
+    "typescript": "^5.7.0"
+  }
+}
