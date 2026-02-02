@@ -9,20 +9,20 @@ export interface Cookie {
   /** Whether the cookie value was encrypted in the database */
   encrypted: boolean;
   /** Cookie domain */
-  domain: string;
+  domain?: string;
   /** Cookie path */
-  path: string;
+  path?: string;
   /** Expiration date (null if session cookie) */
-  expires: Date | null;
+  expires?: number;
   /** Whether cookie requires HTTPS */
-  secure: boolean;
+  secure?: boolean;
   /** Whether cookie is HTTP-only */
-  httpOnly: boolean;
+  httpOnly?: boolean;
   /** SameSite attribute */
-  sameSite: SameSiteValue;
+  sameSite?: SameSiteValue;
 }
 
-export type SameSiteValue = 'none' | 'lax' | 'strict' | 'unspecified';
+export type SameSiteValue = 'none' | 'lax' | 'strict';
 
 export type BrowserType = 'chrome' | 'edge' | 'firefox';
 
