@@ -6,8 +6,6 @@ export interface Cookie {
   name: string;
   /** Cookie value (null if encrypted and decryption failed) */
   value: string | null;
-  /** Whether the cookie value was encrypted in the database */
-  encrypted: boolean;
   /** Cookie domain */
   domain?: string;
   /** Cookie path */

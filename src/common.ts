@@ -84,12 +84,12 @@ function decryptRawCookiesFromChromeRows(
     if (cookieNames && !cookieNames.has(name)) {
       continue;
     }
-    const host = typeof row.host_key === 'string' ? row.host_key : '';
-    if (!host) {
+    const hostString = typeof row.host_key === 'string' ? row.host_key : '';
+    if (!hostString) {
       continue;
     }
-    const hostTemp = host.startsWith('.') ? host.substring(1) : host;
-    const domainLower = hostTemp.toLowerCase();
+    const host = hostString.startsWith('.') ? hostString.substring(1) : hostString;
+    const domainLower = host.toLowerCase();
     if (
       !hosts.some((host) => {
         const hostLower = host.toLowerCase();
@@ -125,17 +125,28 @@ function decryptRawCookiesFromChromeRows(
       continue;
     }
 
+    const secure =
+      row.is_secure === 1 ||
+      row.is_secure === true ||
+      row.is_secure === 1n ||
+      row.is_secure === '1';
+    const httpOnly =
+      row.is_httponly === 1 ||
+      row.is_httponly === true ||
+      row.is_httponly === 1n ||
+      row.is_httponly === '1';
+
     const sameSite = normalizeSameSite(row.samesite);
+    const rowPath = typeof row.path === 'string' ? row.path : '';
     // Create Cookie object
     const cookie: Cookie = {
       name,
       value,
-      encrypted: valueTemp === null,
       domain: host,
-      path: typeof row.path === 'string' ? row.path : '/',
-      expires: expires ?? undefined,
-      secure: Boolean(row.is_secure),
-      httpOnly: Boolean(row.is_httponly),
+      path: rowPath || '/',
+      expires,
+      secure,
+      httpOnly,
       sameSite,
     };
 
