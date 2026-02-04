@@ -22,7 +22,7 @@ export interface Cookie {
 
 export type SameSiteValue = 'none' | 'lax' | 'strict';
 
-export type BrowserType = 'chrome' | 'edge' | 'firefox';
+export type BrowserType = 'chrome' | 'edge' | 'firefox' | 'safari';
 
 /**
  * Options for getCookiesFromBrowser
@@ -30,15 +30,11 @@ export type BrowserType = 'chrome' | 'edge' | 'firefox';
 export interface GetCookiesOptions {
   /** Browser profile name (default: 'Default') */
   profile?: string;
-  /** Custom path to cookie database */
-  cookiePath: string;
-  /** Filter cookies by domain */
-  domain?: string;
-  /** Attempt to decrypt encrypted cookies (default: true, macOS Chrome/Edge only) */
-  decrypt?: boolean;
-  timeoutMs?: number;
+  /** Whether to include expired cookies (default: false) */
   includeExpired?: boolean;
 }
+
+export type GetDBOptions = GetCookiesOptions & { dbPath: string };
 
 export interface GetCookiesResult {
   cookies: Cookie[];

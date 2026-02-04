@@ -1,4 +1,4 @@
-import { GetCookiesOptions, GetCookiesResult, Cookie, SameSiteValue } from './types.js';
+import { GetCookiesResult, Cookie, SameSiteValue, GetDBOptions, BrowserType } from './types.js';
 import { tmpdir } from 'os';
 import { copyFileSync, existsSync, mkdtempSync, rmSync } from 'fs';
 import path from 'path';
@@ -17,7 +17,7 @@ type ChromeCookieRow = {
 };
 
 export async function getCookiesFromChromeSqliteDB(
-  options: GetCookiesOptions,
+  options: GetDBOptions,
   origins: string[],
   cookieNames: Set<string> | null,
   decrypytFn: (encryptedValue: Uint8Array) => string | null
@@ -27,7 +27,7 @@ export async function getCookiesFromChromeSqliteDB(
   const tmpdirPath = mkdtempSync(path.join(tmpdir(), 'sqlite-cookie-temp-db-'));
   const tempDbPath = path.join(tmpdirPath, 'Cookies');
   try {
-    copyFileSync(options.cookiePath, tempDbPath);
+    copyFileSync(options.dbPath, tempDbPath);
   } catch (error) {
     rmSync(tmpdirPath, { recursive: true, force: true });
     warnings.push(`Failed to copy cookie database: ${(error as Error).message}`);
@@ -118,7 +118,7 @@ function decryptRawCookiesFromChromeRows(
         : tryParseInt(row.expires_utc);
 
     // Convert Chrome timestamp to JavaScript timestamp (milliseconds)
-    const expires = chromeTimestampToMillis(expiresUtc);
+    const expires = normalizeExpiration(expiresUtc, 'chrome');
 
     // Check if cookie is expired (if not including expired cookies)
     if (!options.includeExpired && expires && expires < Date.now()) {
@@ -198,29 +198,57 @@ function tryParseInt(value: unknown): number | null {
   return null;
 }
 
+// Offset between 1601-01-01 and 1970-01-01 in milliseconds
+const CHROME_EPOCH_OFFSET_MS = 11644473600000n;
+// Offset between 2001-01-01 and 1970-01-01 in seconds
+const SAFARI_EPOCH_OFFSET_S = 978307200;
+
 /**
- * Convert Chrome/WebKit timestamp to JavaScript timestamp (milliseconds since 1970-01-01)
- * @param chromeTimestamp - Chrome timestamp (microseconds since 1601-01-01)
- * @returns Milliseconds since epoch (1970-01-01), or null if conversion fails
+ * Normalize browser-specific timestamp to JavaScript milliseconds (since 1970-01-01 UTC)
+ * @param timestamp - The raw timestamp value from the browser database
+ * @param browser - The browser type (determines timestamp format)
+ *   - chrome/edge: microseconds since 1601-01-01
+ *   - firefox: seconds since 1970-01-01
+ *   - safari: seconds since 2001-01-01 (CFAbsoluteTime)
+ * @returns Milliseconds since epoch (1970-01-01), or undefined if conversion fails
  */
-function chromeTimestampToMillis(chromeTimestamp: number | bigint | null): number | undefined {
-  if (chromeTimestamp === null || chromeTimestamp === 0 || chromeTimestamp === 0n) {
+export function normalizeExpiration(
+  timestamp: number | bigint | null,
+  browser: BrowserType
+): number | undefined {
+  if (timestamp === null || timestamp === 0 || timestamp === 0n) {
     return undefined;
   }
 
   try {
-    // Convert bigint to number
-    const microseconds =
-      typeof chromeTimestamp === 'bigint' ? Number(chromeTimestamp) : chromeTimestamp;
+    switch (browser) {
+      case 'chrome':
+      case 'edge': {
+        // Chrome/Edge: microseconds since 1601-01-01
+        // Use bigint arithmetic to avoid precision loss
+        const microsBigInt =
+          typeof timestamp === 'bigint' ? timestamp : BigInt(Math.floor(timestamp));
+        const millisFrom1601 = microsBigInt / 1000n;
+        const millisFrom1970 = millisFrom1601 - CHROME_EPOCH_OFFSET_MS;
+        return Number(millisFrom1970);
+      }
 
-    // Chrome timestamp: microseconds since 1601-01-01 00:00:00 UTC
-    // JavaScript Date: milliseconds since 1970-01-01 00:00:00 UTC
-    // Offset between 1601-01-01 and 1970-01-01 is 11644473600000 milliseconds
-    const EPOCH_OFFSET_MS = 11644473600000;
-    const millisecondsFrom1970 = microseconds / 1000 - EPOCH_OFFSET_MS;
+      case 'firefox': {
+        // Firefox: seconds since 1970-01-01
+        const seconds = typeof timestamp === 'bigint' ? Number(timestamp) : timestamp;
+        return seconds * 1000;
+      }
 
-    return millisecondsFrom1970;
-  } catch (error) {
+      case 'safari': {
+        // Safari: seconds since 2001-01-01 (CFAbsoluteTime)
+        const seconds = typeof timestamp === 'bigint' ? Number(timestamp) : timestamp;
+        return (seconds + SAFARI_EPOCH_OFFSET_S) * 1000;
+      }
+
+      default:
+        return undefined;
+    }
+  } catch {
     return undefined;
   }
 }
@@ -255,7 +283,7 @@ function buildHostWhereClause(hosts: string[], column: 'host_key'): string {
 }
 
 function sqlEscape(value: string): string {
-  return value.replace(/'/g, "''");
+  return `'${value.replace(/'/g, "''")}'`;
 }
 
 async function getRawCookiesFromChromeDb(
