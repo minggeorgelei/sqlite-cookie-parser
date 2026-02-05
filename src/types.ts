@@ -18,6 +18,8 @@ export interface Cookie {
   httpOnly?: boolean;
   /** SameSite attribute */
   sameSite?: SameSiteValue;
+  /** Partition key (CHIPS) - the top-level site that partitions this cookie, empty for unpartitioned cookies */
+  partitionKey?: string;
 }
 
 export type SameSiteValue = 'none' | 'lax' | 'strict';
@@ -32,6 +34,8 @@ export interface GetCookiesOptions {
   profile?: string;
   /** Whether to include expired cookies (default: false) */
   includeExpired?: boolean;
+  /** Whether to include partitioned cookies (CHIPS) (default: false) */
+  includePartitioned?: boolean;
 }
 
 export type GetDBOptions = GetCookiesOptions & { dbPath: string };

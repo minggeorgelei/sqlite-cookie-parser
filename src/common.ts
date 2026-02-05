@@ -1,4 +1,11 @@
-import { GetCookiesResult, Cookie, SameSiteValue, GetDBOptions, BrowserType } from './types.js';
+import {
+  GetCookiesResult,
+  Cookie,
+  SameSiteValue,
+  GetDBOptions,
+  BrowserType,
+  GetCookiesOptions,
+} from './types.js';
 import { tmpdir } from 'os';
 import { copyFileSync, existsSync, mkdtempSync, rmSync } from 'fs';
 import path from 'path';
@@ -14,6 +21,8 @@ type ChromeCookieRow = {
   is_secure?: unknown;
   is_httponly?: unknown;
   samesite?: unknown;
+  top_frame_site_key?: unknown;
+  has_cross_site_ancestor?: unknown;
 };
 
 export async function getCookiesFromChromeSqliteDB(
@@ -45,12 +54,15 @@ export async function getCookiesFromChromeSqliteDB(
       return { cookies: [], warnings };
     }
 
-    const partialOptions: { profile?: string; includeExpired?: boolean } = {};
+    const partialOptions: GetCookiesOptions = {};
     if (options.profile) {
       partialOptions.profile = options.profile;
     }
     if (options.includeExpired) {
       partialOptions.includeExpired = options.includeExpired;
+    }
+    if (options.includePartitioned) {
+      partialOptions.includePartitioned = options.includePartitioned;
     }
     const cookies = decryptRawCookiesFromChromeRows(
       rowsResult.rows,
@@ -72,7 +84,7 @@ export async function getCookiesFromChromeSqliteDB(
 
 function decryptRawCookiesFromChromeRows(
   rows: ChromeCookieRow[],
-  options: { profile?: string; includeExpired?: boolean },
+  options: GetCookiesOptions,
   hosts: string[],
   cookieNames: Set<string> | null,
   decryptFn: (encryptedValue: Uint8Array) => string | null,
@@ -98,6 +110,17 @@ function decryptRawCookiesFromChromeRows(
     ) {
       continue;
     }
+
+    const partitionKey =
+      typeof row.top_frame_site_key === 'string' && row.top_frame_site_key
+        ? row.top_frame_site_key
+        : undefined;
+
+    // Filter out partitioned cookies by default
+    if (!options.includePartitioned && partitionKey) {
+      continue;
+    }
+
     const valueTemp = typeof row.value === 'string' ? row.value : null;
     let value = valueTemp;
     if (!value) {
@@ -138,6 +161,7 @@ function decryptRawCookiesFromChromeRows(
 
     const sameSite = normalizeSameSite(row.samesite);
     const rowPath = typeof row.path === 'string' ? row.path : '';
+
     // Create Cookie object
     const cookie: Cookie = {
       name,
@@ -148,6 +172,7 @@ function decryptRawCookiesFromChromeRows(
       secure,
       httpOnly,
       sameSite,
+      partitionKey,
     };
 
     cookies.push(cookie);
@@ -304,7 +329,9 @@ async function getRawCookiesFromChromeDb(
           expires_utc,
           is_secure,
           is_httponly,
-          samesite
+          samesite,
+          top_frame_site_key,
+          has_cross_site_ancestor
         FROM cookies
         WHERE ${whereClause}
         ORDER BY expires_utc DESC

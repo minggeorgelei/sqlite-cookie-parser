@@ -212,6 +212,69 @@ describe('getCookiesFromChrome', () => {
     });
   });
 
+  describe('includePartitioned behavior', () => {
+    it('should exclude partitioned cookies by default', async () => {
+      const result = await getCookiesFromChrome(
+        { profile: 'Default' },
+        ['https://google.com'],
+        null
+      );
+
+      for (const cookie of result.cookies) {
+        expect(cookie.partitionKey).toBeUndefined();
+      }
+    });
+
+    it('should include partitioned cookies when includePartitioned=true', async () => {
+      const result = await getCookiesFromChrome(
+        { profile: 'Default', includePartitioned: true },
+        ['https://google.com'],
+        null
+      );
+
+      expect(result).toBeDefined();
+      // All cookies should be present, partitioned ones should have partitionKey set
+      for (const cookie of result.cookies) {
+        if (cookie.partitionKey !== undefined) {
+          expect(typeof cookie.partitionKey).toBe('string');
+          expect(cookie.partitionKey.length).toBeGreaterThan(0);
+        }
+      }
+    });
+
+    it('should return more or equal cookies with includePartitioned=true', async () => {
+      const withPartitioned = await getCookiesFromChrome(
+        { profile: 'Default', includePartitioned: true },
+        ['https://google.com'],
+        null
+      );
+
+      const withoutPartitioned = await getCookiesFromChrome(
+        { profile: 'Default', includePartitioned: false },
+        ['https://google.com'],
+        null
+      );
+
+      expect(withPartitioned.cookies.length).toBeGreaterThanOrEqual(
+        withoutPartitioned.cookies.length
+      );
+    });
+
+    it('should have valid partitionKey format (URL) when present', async () => {
+      const result = await getCookiesFromChrome(
+        { profile: 'Default', includePartitioned: true },
+        ['https://google.com'],
+        null
+      );
+
+      for (const cookie of result.cookies) {
+        if (cookie.partitionKey) {
+          expect(cookie.partitionKey).toMatch(/^https?:\/\//);
+        }
+      }
+    });
+  });
+
   describe('cookie properties', () => {
     it('should have valid sameSite values', async () => {
       const result = await getCookiesFromChrome(
