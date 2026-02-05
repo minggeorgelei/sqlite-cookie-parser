@@ -82,3 +82,8 @@ export interface FirefoxCookieRow {
 }
 
 export type DecryptFunction = (encryptedValue: Buffer) => string;
+
+export interface CookieHeaderOption {
+  removeDuplicates?: boolean;
+  sortByName?: boolean;
+}
