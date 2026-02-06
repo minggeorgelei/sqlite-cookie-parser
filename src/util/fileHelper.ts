@@ -16,7 +16,7 @@ export function normalizePath(pathStr: string): string {
   return path.resolve(process.cwd(), pathStr);
 }
 
-export function resolveChromeDefaultorSpecificDBPath(
+export function resolveBrowserDefaultorSpecificDBPath(
   roots: string[],
   profile?: string
 ): string | null {

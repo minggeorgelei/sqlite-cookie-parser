@@ -25,7 +25,7 @@ type ChromeCookieRow = {
   has_cross_site_ancestor?: unknown;
 };
 
-export async function getCookiesFromChromeSqliteDB(
+export async function getCookiesFromChromiumSqliteDB(
   options: GetDBOptions,
   origins: string[],
   cookieNames: Set<string> | null,
@@ -46,7 +46,7 @@ export async function getCookiesFromChromeSqliteDB(
   try {
     const hosts = origins.map((origin) => new URL(origin).hostname);
     const whereClause = buildHostWhereClause(hosts, 'host_key');
-    const rowsResult = await getRawCookiesFromChromeDb(tempDbPath, whereClause);
+    const rowsResult = await getRawCookiesFromChromiumDb(tempDbPath, whereClause);
 
     if (!rowsResult.success) {
       rmSync(tmpdirPath, { recursive: true, force: true });
@@ -64,7 +64,7 @@ export async function getCookiesFromChromeSqliteDB(
     if (options.includePartitioned) {
       partialOptions.includePartitioned = options.includePartitioned;
     }
-    const cookies = decryptRawCookiesFromChromeRows(
+    const cookies = decryptRawCookiesFromChromiumRows(
       rowsResult.rows,
       partialOptions,
       hosts,
@@ -82,7 +82,7 @@ export async function getCookiesFromChromeSqliteDB(
   }
 }
 
-function decryptRawCookiesFromChromeRows(
+function decryptRawCookiesFromChromiumRows(
   rows: ChromeCookieRow[],
   options: GetCookiesOptions,
   hosts: string[],
@@ -311,7 +311,7 @@ function sqlEscape(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
 }
 
-async function getRawCookiesFromChromeDb(
+async function getRawCookiesFromChromiumDb(
   dbPath: string,
   whereClause: string
 ): Promise<{ success: true; rows: ChromeCookieRow[] } | { success: false; error: string }> {

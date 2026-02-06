@@ -1,44 +1,44 @@
+import { GetCookiesOptions, GetCookiesResult, GetDBOptions } from './types.js';
 import { homedir } from 'os';
 import { resolveBrowserDefaultorSpecificDBPath } from './util/fileHelper.js';
-import { GetCookiesOptions, GetCookiesResult, GetDBOptions } from './types.js';
 import { findFirstMacKeyChainPassword } from './util/macKeyChain.js';
 import { getAES128CBCKey, decryptChomiumAES128CBCCookieValue } from './util/crypto.js';
 import { getCookiesFromChromiumSqliteDB } from './common.js';
 
-export async function getCookiesFromChromeSqlite(
+export async function getCookiesFromEdgeSqlite(
   options: GetCookiesOptions,
   origins: string[],
   cookieNames: Set<string> | null
 ): Promise<GetCookiesResult> {
-  const sqlDBPath = resolveChromeDBPath(options.profile);
+  const sqlDBPath = resolveEdgeDBPath(options.profile);
   if (!sqlDBPath) {
     return {
       cookies: [],
-      warnings: ['Could not resolve Chrome cookie database path.'],
+      warnings: ['Could not resolve Edge cookie database path.'],
     };
   }
 
   const warnings: string[] = [];
 
   const passwordResult = await findFirstMacKeyChainPassword(
-    ['Chrome Safe Storage'],
-    'Chrome',
+    ['Microsoft Edge Safe Storage', 'Microsoft Edge'],
+    'Microsoft Edge',
     5000,
-    'Chrome Safe Storage'
+    'Microsoft Edge Safe Storage'
   );
   if (!passwordResult.success) {
-    warnings.push(`Failed to get Chrome decryption key: ${passwordResult.error}`);
+    warnings.push(`Failed to get Edge decryption key: ${passwordResult.error}`);
     return { cookies: [], warnings };
   }
 
-  const chromePassword = passwordResult.password.trim();
-  if (!chromePassword) {
-    warnings.push('Chrome decryption key is empty.');
+  const edgePassword = passwordResult.password.trim();
+  if (!edgePassword) {
+    warnings.push('Edge decryption key is empty.');
     return { cookies: [], warnings };
   }
 
-  // iterations is 1003 for macOS Chrome
-  const key = getAES128CBCKey(chromePassword, 1003);
+  // iterations is 1003 for macOS Edge (same as Chrome)
+  const key = getAES128CBCKey(edgePassword, 1003);
   const decryptFn = (encryptedValue: Uint8Array): string | null => {
     return decryptChomiumAES128CBCCookieValue(encryptedValue, [key]);
   };
@@ -60,8 +60,8 @@ export async function getCookiesFromChromeSqlite(
   return { cookies, warnings };
 }
 
-function resolveChromeDBPath(profile?: string): string | null {
+function resolveEdgeDBPath(profile?: string): string | null {
   const homeDir = homedir();
-  const rootPath = `${homeDir}/Library/Application Support/Google/Chrome`;
+  const rootPath = `${homeDir}/Library/Application Support/Microsoft Edge`;
   return resolveBrowserDefaultorSpecificDBPath([rootPath], profile);
 }
