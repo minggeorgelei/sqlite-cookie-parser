@@ -1,6 +1,6 @@
 import path from 'path';
 import { homedir } from 'os';
-import { existsSync, stat, statSync } from 'fs';
+import { existsSync, statSync } from 'fs';
 
 export function isLikeFilePath(path: string): boolean {
   return path.includes('/') || path.includes('\\');

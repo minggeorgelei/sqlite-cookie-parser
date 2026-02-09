@@ -33,7 +33,7 @@ export async function getCookiesFromChromiumSqliteDB(
 ): Promise<GetCookiesResult> {
   const warnings: string[] = [];
 
-  const tmpdirPath = mkdtempSync(path.join(tmpdir(), 'sqlite-cookie-temp-db-'));
+  const tmpdirPath = mkdtempSync(path.join(tmpdir(), 'sqlite-cookie-chromium-db-'));
   const tempDbPath = path.join(tmpdirPath, 'Cookies');
   try {
     copyFileSync(options.dbPath, tempDbPath);
@@ -259,9 +259,8 @@ export function normalizeExpiration(
       }
 
       case 'firefox': {
-        // Firefox: seconds since 1970-01-01
-        const seconds = typeof timestamp === 'bigint' ? Number(timestamp) : timestamp;
-        return seconds * 1000;
+        // Firefox: milliseconds since 1970-01-01 (already in JavaScript timestamp format)
+        return typeof timestamp === 'bigint' ? Number(timestamp) : timestamp;
       }
 
       case 'safari': {
