@@ -77,3 +77,48 @@ function removeLeadingControlChars(value: string): string {
   }
   return value.substring(index);
 }
+
+/**
+ * Decrypt a Windows Chromium cookie value encrypted with AES-256-GCM.
+ * Format: v10/v20 prefix (3 bytes) + nonce (12 bytes) + ciphertext + auth tag (16 bytes)
+ */
+export function decryptChromiumAES256GCMCookieValue(
+  encryptedValue: Uint8Array,
+  key: Buffer
+): string | null {
+  const buffer = Buffer.from(encryptedValue);
+  if (buffer.length < 3) {
+    return null;
+  }
+
+  const prefix = buffer.subarray(0, 3).toString('utf8');
+  const hasPrefix = prefix === 'v10' || prefix === 'v20';
+  if (!hasPrefix) {
+    // Not encrypted, try to return as plain text
+    try {
+      return UTF8_DECODER.decode(buffer);
+    } catch {
+      return null;
+    }
+  }
+
+  const payload = buffer.subarray(3);
+  if (payload.length < 12 + 16) {
+    // Need at least nonce (12) + auth tag (16)
+    return null;
+  }
+
+  const nonce = payload.subarray(0, 12);
+  const ciphertextWithTag = payload.subarray(12);
+  const authTag = ciphertextWithTag.subarray(ciphertextWithTag.length - 16);
+  const ciphertext = ciphertextWithTag.subarray(0, ciphertextWithTag.length - 16);
+
+  try {
+    const decipher = createDecipheriv('aes-256-gcm', key, nonce);
+    decipher.setAuthTag(authTag);
+    const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+    return UTF8_DECODER.decode(decrypted);
+  } catch {
+    return null;
+  }
+}
