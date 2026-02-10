@@ -68,11 +68,8 @@ export async function getCookiesFromFirefoxSqlite(
       includePartitioned: options.includePartitioned,
     };
 
-    const { cookies: persistentCookies, warnings: dbWarnings } = await getCookiesFromFirefoxSqliteDB(
-      dbOptions,
-      origins,
-      cookieNames
-    );
+    const { cookies: persistentCookies, warnings: dbWarnings } =
+      await getCookiesFromFirefoxSqliteDB(dbOptions, origins, cookieNames);
     allCookies.push(...persistentCookies);
     warnings.push(...dbWarnings);
   } else {
@@ -490,21 +487,16 @@ function getFirefoxProfileDirs(profilesDir: string): string[] {
 function findFirefoxProfileDirs(profileDirs: string[], profileName: string): string[] {
   const lowerProfile = profileName.toLowerCase();
 
-  // First, try exact match (e.g., "xxx.default-release" matches "default-release")
-  const exactMatch = profileDirs.filter((dir) => {
+  const matchDirs = profileDirs.filter((dir) => {
     const dirName = path.basename(dir).toLowerCase();
-    return dirName === lowerProfile || dirName.endsWith(`.${lowerProfile}`);
+    return dirName === lowerProfile;
   });
 
-  if (exactMatch.length > 0) {
-    return exactMatch;
+  if (matchDirs.length > 0) {
+    return matchDirs;
   }
 
-  // Then, try partial match
-  return profileDirs.filter((dir) => {
-    const dirName = path.basename(dir).toLowerCase();
-    return dirName.includes(lowerProfile);
-  });
+  return [];
 }
 
 // ============ Session Cookies from sessionstore ============
@@ -606,6 +598,9 @@ function resolveFirefoxProfileDir(profile?: string): string | null {
     const stat = statSync(profile, { throwIfNoEntry: false });
     if (stat && stat.isDirectory()) {
       return profile;
+    }
+    if (stat && stat.isFile()) {
+      return path.dirname(profile);
     }
   }
 

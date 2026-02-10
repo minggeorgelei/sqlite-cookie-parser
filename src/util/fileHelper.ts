@@ -2,10 +2,6 @@ import path from 'path';
 import { homedir } from 'os';
 import { existsSync, statSync } from 'fs';
 
-export function isLikeFilePath(path: string): boolean {
-  return path.includes('/') || path.includes('\\');
-}
-
 export function normalizePath(pathStr: string): string {
   if (pathStr.startsWith('~/')) {
     return path.join(homedir(), pathStr.slice(2));
@@ -21,16 +17,21 @@ export function resolveBrowserDefaultorSpecificDBPath(
   profile?: string
 ): string | null {
   const candidates: string[] = [];
-  if (profile && isLikeFilePath(profile)) {
+  let isProfileDir = false;
+  if (profile) {
     const stat = statSync(profile, { throwIfNoEntry: false });
     if (stat && stat.isFile()) {
       return profile;
     }
-    const candidate1 = path.join(profile, 'Cookies');
-    candidates.push(candidate1);
-    const candidate2 = path.join(profile, 'Network', 'Cookies');
-    candidates.push(candidate2);
-  } else {
+    if (stat && stat.isDirectory()) {
+      isProfileDir = true;
+      const candidate1 = path.join(profile, 'Cookies');
+      candidates.push(candidate1);
+      const candidate2 = path.join(profile, 'Network', 'Cookies');
+      candidates.push(candidate2);
+    }
+  }
+  if (!isProfileDir) {
     const profileDir = profile?.trim() || 'Default';
     for (const root of roots) {
       const candidate1 = path.join(root, profileDir, 'Cookies');
@@ -41,7 +42,6 @@ export function resolveBrowserDefaultorSpecificDBPath(
   }
 
   for (const candidate of candidates) {
-    console.log('Checking candidate path:', candidate);
     if (existsSync(candidate)) {
       return candidate;
     }
