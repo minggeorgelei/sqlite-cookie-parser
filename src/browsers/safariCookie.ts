@@ -316,6 +316,7 @@ function filterAndConvertCookies(
  * - ~/Library/Containers/com.apple.Safari/Data/Library/Cookies/Cookies.binarycookies (sandboxed)
  */
 function resolveSafariCookiePath(profile?: string): string | null {
+  profile = profile?.trim();
   // If profile is a direct file path
   if (profile) {
     const stat = statSync(profile, { throwIfNoEntry: false });

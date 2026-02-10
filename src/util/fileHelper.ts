@@ -18,6 +18,7 @@ export function resolveBrowserDefaultorSpecificDBPath(
 ): string | null {
   const candidates: string[] = [];
   let isProfileDir = false;
+  profile = profile?.trim();
   if (profile) {
     const stat = statSync(profile, { throwIfNoEntry: false });
     if (stat && stat.isFile()) {
@@ -32,7 +33,7 @@ export function resolveBrowserDefaultorSpecificDBPath(
     }
   }
   if (!isProfileDir) {
-    const profileDir = profile?.trim() || 'Default';
+    const profileDir = profile || 'Default';
     for (const root of roots) {
       const candidate1 = path.join(root, profileDir, 'Cookies');
       candidates.push(candidate1);

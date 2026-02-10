@@ -391,6 +391,7 @@ async function getRawCookiesFromFirefoxDb(
  * - Windows: %APPDATA%\Mozilla\Firefox\Profiles\<profile>\cookies.sqlite
  */
 function resolveFirefoxDBPath(profile?: string): string | null {
+  profile = profile?.trim();
   // If profile is a direct file path
   if (profile) {
     const stat = statSync(profile, { throwIfNoEntry: false });
@@ -593,6 +594,7 @@ function parseSessionCookies(
  * Resolve Firefox profile directory path
  */
 function resolveFirefoxProfileDir(profile?: string): string | null {
+  profile = profile?.trim();
   // If profile is a directory path
   if (profile) {
     const stat = statSync(profile, { throwIfNoEntry: false });
