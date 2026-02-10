@@ -1,5 +1,5 @@
 import { GetCookiesOptions, GetCookiesResult } from '../types.js';
-import { getCookiesFromEdgeSqlite } from '../chromeEdgeCookie.js';
+import { getCookiesFromEdgeSqlite } from '../edgeMacCookie.js';
 
 export async function getCookiesFromEdge(
   options: GetCookiesOptions,
