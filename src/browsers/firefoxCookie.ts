@@ -155,7 +155,7 @@ async function getCookiesFromFirefoxSqliteDB(
  */
 function parseFirefoxCookieRows(
   rows: FirefoxCookieRow[],
-  options: GetCookiesOptions,
+  options: GetDBOptions,
   hosts: string[],
   cookieNames: Set<string> | null,
   warnings: string[] = []
@@ -238,6 +238,10 @@ function parseFirefoxCookieRows(
       httpOnly,
       sameSite,
       partitionKey,
+      source: {
+        browser: 'firefox',
+        profile: options.dbPath,
+      },
     };
 
     cookies.push(cookie);
@@ -582,6 +586,9 @@ function parseSessionCookies(
       expires: undefined, // Session cookies have no expiry
       secure: sc.secure || false,
       httpOnly: sc.httpOnly || false,
+      source: {
+        browser: 'firefox',
+      },
     };
 
     cookies.push(cookie);

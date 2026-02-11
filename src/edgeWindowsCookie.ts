@@ -43,6 +43,7 @@ export async function getCookiesFromEdgeWindowsSqlite(
     dbOptions,
     origins,
     cookieNames,
+    'edge',
     decryptFn
   );
   warnings.push(...dbWarnings);

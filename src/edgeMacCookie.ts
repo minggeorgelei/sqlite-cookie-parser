@@ -53,6 +53,7 @@ export async function getCookiesFromEdgeSqlite(
     dbOptions,
     origins,
     cookieNames,
+    'edge',
     decryptFn
   );
   warnings.push(...dbWarnings);

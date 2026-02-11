@@ -53,6 +53,7 @@ export async function getCookiesFromChromeSqlite(
     dbOptions,
     origins,
     cookieNames,
+    'chrome',
     decryptFn
   );
   warnings.push(...dbWarnings);

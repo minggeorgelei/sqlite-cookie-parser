@@ -45,6 +45,7 @@ export async function getCookiesFromEdgeLinuxSqlite(
     dbOptions,
     origins,
     cookieNames,
+    'edge',
     decryptFn
   );
   warnings.push(...dbWarnings);

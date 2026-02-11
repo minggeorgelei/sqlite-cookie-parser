@@ -53,6 +53,7 @@ export async function getCookiesFromOperaMacSqlite(
     dbOptions,
     origins,
     cookieNames,
+    'opera',
     decryptFn
   );
   warnings.push(...dbWarnings);

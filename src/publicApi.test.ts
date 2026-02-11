@@ -3,7 +3,13 @@ import { toCookieHeader } from './publicApi.js';
 import { Cookie } from './types.js';
 
 function makeCookie(name: string, value: string): Cookie {
-  return { name, value };
+  return {
+    name,
+    value,
+    source: {
+      browser: 'chrome',
+    },
+  };
 }
 
 describe('toCookieHeader', () => {

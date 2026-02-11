@@ -29,6 +29,7 @@ export async function getCookiesFromChromiumSqliteDB(
   options: GetDBOptions,
   origins: string[],
   cookieNames: Set<string> | null,
+  browser: BrowserType,
   decrypytFn: (encryptedValue: Uint8Array) => string | null
 ): Promise<GetCookiesResult> {
   const warnings: string[] = [];
@@ -54,21 +55,12 @@ export async function getCookiesFromChromiumSqliteDB(
       return { cookies: [], warnings };
     }
 
-    const partialOptions: GetCookiesOptions = {};
-    if (options.profile) {
-      partialOptions.profile = options.profile;
-    }
-    if (options.includeExpired) {
-      partialOptions.includeExpired = options.includeExpired;
-    }
-    if (options.includePartitioned) {
-      partialOptions.includePartitioned = options.includePartitioned;
-    }
     const cookies = decryptRawCookiesFromChromiumRows(
       rowsResult.rows,
-      partialOptions,
+      options,
       hosts,
       cookieNames,
+      browser,
       decrypytFn,
       warnings
     );
@@ -84,9 +76,10 @@ export async function getCookiesFromChromiumSqliteDB(
 
 function decryptRawCookiesFromChromiumRows(
   rows: ChromeCookieRow[],
-  options: GetCookiesOptions,
+  options: GetDBOptions,
   hosts: string[],
   cookieNames: Set<string> | null,
+  browser: BrowserType,
   decryptFn: (encryptedValue: Uint8Array) => string | null,
   warnings: string[] = []
 ): Cookie[] {
@@ -173,6 +166,10 @@ function decryptRawCookiesFromChromiumRows(
       httpOnly,
       sameSite,
       partitionKey,
+      source: {
+        browser,
+        profile: options.dbPath,
+      },
     };
 
     cookies.push(cookie);

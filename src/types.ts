@@ -20,6 +20,10 @@ export interface Cookie {
   sameSite?: SameSiteValue;
   /** Partition key (CHIPS) - the top-level site that partitions this cookie, empty for unpartitioned cookies */
   partitionKey?: string;
+  source: {
+    browser: BrowserType;
+    profile?: string;
+  };
 }
 
 export type SameSiteValue = 'none' | 'lax' | 'strict';

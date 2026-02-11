@@ -20,11 +20,7 @@ export async function getCookiesFromOperaLinuxSqlite(
 
   const warnings: string[] = [];
 
-  const passwordResult = await findLinuxChromiumPassword(
-    'opera',
-    'Opera Safe Storage',
-    5000
-  );
+  const passwordResult = await findLinuxChromiumPassword('opera', 'Opera Safe Storage', 5000);
   if (passwordResult.warnings.length > 0) {
     warnings.push(...passwordResult.warnings);
   }
@@ -45,6 +41,7 @@ export async function getCookiesFromOperaLinuxSqlite(
     dbOptions,
     origins,
     cookieNames,
+    'opera',
     decryptFn
   );
   warnings.push(...dbWarnings);

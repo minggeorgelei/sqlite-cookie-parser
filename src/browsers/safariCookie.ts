@@ -1,7 +1,7 @@
 import { homedir, tmpdir } from 'os';
 import { copyFileSync, mkdtempSync, rmSync, existsSync, readFileSync, statSync } from 'fs';
 import path from 'path';
-import { GetCookiesOptions, GetCookiesResult, Cookie } from '../types.js';
+import { GetCookiesOptions, GetCookiesResult, Cookie, GetDBOptions } from '../types.js';
 import { normalizeExpiration } from '../common.js';
 
 /**
@@ -92,7 +92,12 @@ export async function getCookiesFromSafari(
   try {
     const fileBuffer = readFileSync(tempFilePath);
     const rawCookies = parseBinaryCookies(fileBuffer);
-    const cookies = filterAndConvertCookies(rawCookies, options, hosts, cookieNames);
+    const dbOptions: GetDBOptions = {
+      dbPath: cookieFilePath,
+      profile: options.profile,
+      includeExpired: options.includeExpired,
+    };
+    const cookies = filterAndConvertCookies(rawCookies, dbOptions, hosts, cookieNames);
 
     rmSync(tmpdirPath, { recursive: true, force: true });
 
@@ -117,7 +122,9 @@ function parseBinaryCookies(buffer: Buffer): RawSafariCookie[] {
   // Validate magic header
   const magic = buffer.subarray(0, 4).toString('ascii');
   if (magic !== BINARY_COOKIES_MAGIC) {
-    throw new Error(`Invalid BinaryCookies magic: expected "${BINARY_COOKIES_MAGIC}", got "${magic}"`);
+    throw new Error(
+      `Invalid BinaryCookies magic: expected "${BINARY_COOKIES_MAGIC}", got "${magic}"`
+    );
   }
   offset = 4;
 
@@ -258,7 +265,7 @@ function readNullTerminatedString(buffer: Buffer, offset: number): string {
  */
 function filterAndConvertCookies(
   rawCookies: RawSafariCookie[],
-  options: GetCookiesOptions,
+  options: GetDBOptions,
   hosts: string[],
   cookieNames: Set<string> | null
 ): Cookie[] {
@@ -300,6 +307,10 @@ function filterAndConvertCookies(
       expires,
       secure: raw.secure,
       httpOnly: raw.httpOnly,
+      source: {
+        browser: 'safari',
+        profile: options.dbPath,
+      },
     };
 
     cookies.push(cookie);

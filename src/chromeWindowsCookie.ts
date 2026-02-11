@@ -43,6 +43,7 @@ export async function getCookiesFromChromeWindowsSqlite(
     dbOptions,
     origins,
     cookieNames,
+    'chrome',
     decryptFn
   );
   warnings.push(...dbWarnings);
@@ -51,7 +52,8 @@ export async function getCookiesFromChromeWindowsSqlite(
 }
 
 function resolveChromeWindowsUserDataDir(): string {
-  const localAppData = process.env.LOCALAPPDATA || path.join(process.env.USERPROFILE || '', 'AppData', 'Local');
+  const localAppData =
+    process.env.LOCALAPPDATA || path.join(process.env.USERPROFILE || '', 'AppData', 'Local');
   return path.join(localAppData, 'Google', 'Chrome', 'User Data');
 }
 
@@ -68,14 +70,20 @@ async function extractChromeWindowsEncryptionKey(
   try {
     localStateContent = readFileSync(localStatePath, 'utf8');
   } catch (error) {
-    return { success: false, error: `Failed to read Local State file: ${(error as Error).message}` };
+    return {
+      success: false,
+      error: `Failed to read Local State file: ${(error as Error).message}`,
+    };
   }
 
   let localState: { os_crypt?: { encrypted_key?: string } };
   try {
     localState = JSON.parse(localStateContent);
   } catch (error) {
-    return { success: false, error: `Failed to parse Local State JSON: ${(error as Error).message}` };
+    return {
+      success: false,
+      error: `Failed to parse Local State JSON: ${(error as Error).message}`,
+    };
   }
 
   const encryptedKeyBase64 = localState?.os_crypt?.encrypted_key;

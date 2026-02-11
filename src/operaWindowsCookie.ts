@@ -43,6 +43,7 @@ export async function getCookiesFromOperaWindowsSqlite(
     dbOptions,
     origins,
     cookieNames,
+    'opera',
     decryptFn
   );
   warnings.push(...dbWarnings);
