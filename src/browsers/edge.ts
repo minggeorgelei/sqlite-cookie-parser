@@ -1,6 +1,7 @@
 import { GetCookiesOptions, GetCookiesResult } from '../types.js';
 import { getCookiesFromEdgeSqlite } from '../edgeMacCookie.js';
 import { getCookiesFromEdgeWindowsSqlite } from '../edgeWindowsCookie.js';
+import { getCookiesFromEdgeLinuxSqlite } from '../edgeLinuxCookie.js';
 
 export async function getCookiesFromEdge(
   options: GetCookiesOptions,
@@ -17,6 +18,12 @@ export async function getCookiesFromEdge(
 
   if (process.platform === 'win32') {
     const result = await getCookiesFromEdgeWindowsSqlite(options, origins, cookieNames);
+    warnings.push(...result.warnings);
+    return { cookies: result.cookies, warnings };
+  }
+
+  if (process.platform === 'linux') {
+    const result = await getCookiesFromEdgeLinuxSqlite(options, origins, cookieNames);
     warnings.push(...result.warnings);
     return { cookies: result.cookies, warnings };
   }

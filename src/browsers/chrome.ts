@@ -1,6 +1,7 @@
 import { GetCookiesOptions, GetCookiesResult } from '../types.js';
 import { getCookiesFromChromeSqlite } from '../chromeMacCookie.js';
 import { getCookiesFromChromeWindowsSqlite } from '../chromeWindowsCookie.js';
+import { getCookiesFromChromeLinuxSqlite } from '../chromeLinuxCookie.js';
 
 export async function getCookiesFromChrome(
   options: GetCookiesOptions,
@@ -17,6 +18,12 @@ export async function getCookiesFromChrome(
 
   if (process.platform === 'win32') {
     const result = await getCookiesFromChromeWindowsSqlite(options, origins, cookieNames);
+    warnings.push(...result.warnings);
+    return { cookies: result.cookies, warnings };
+  }
+
+  if (process.platform === 'linux') {
+    const result = await getCookiesFromChromeLinuxSqlite(options, origins, cookieNames);
     warnings.push(...result.warnings);
     return { cookies: result.cookies, warnings };
   }
