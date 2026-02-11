@@ -24,7 +24,7 @@ export interface Cookie {
 
 export type SameSiteValue = 'none' | 'lax' | 'strict';
 
-export type BrowserType = 'chrome' | 'edge' | 'firefox' | 'safari';
+export type BrowserType = 'chrome' | 'edge' | 'firefox' | 'safari' | 'opera' | 'brave' | 'vivaldi';
 
 /**
  * Options for getCookiesFromBrowser
