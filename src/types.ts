@@ -21,14 +21,16 @@ export interface Cookie {
   /** Partition key (CHIPS) - the top-level site that partitions this cookie, empty for unpartitioned cookies */
   partitionKey?: string;
   source: {
-    browser: BrowserType;
+    browser: BrowserName;
     profile?: string;
   };
 }
 
 export type SameSiteValue = 'none' | 'lax' | 'strict';
 
-export type BrowserType = 'chrome' | 'edge' | 'firefox' | 'safari' | 'opera' | 'brave' | 'vivaldi';
+export type BrowserName = 'chrome' | 'edge' | 'firefox' | 'safari' | 'opera' | 'brave' | 'vivaldi';
+
+export type BrowserType = 'chromium' | 'firefox' | 'safari';
 
 /**
  * Options for getCookiesFromBrowser

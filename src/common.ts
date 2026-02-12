@@ -3,6 +3,7 @@ import {
   Cookie,
   SameSiteValue,
   GetDBOptions,
+  BrowserName,
   BrowserType,
   GetCookiesOptions,
 } from './types.js';
@@ -29,7 +30,7 @@ export async function getCookiesFromChromiumSqliteDB(
   options: GetDBOptions,
   origins: string[],
   cookieNames: Set<string> | null,
-  browser: BrowserType,
+  browser: BrowserName,
   decrypytFn: (encryptedValue: Uint8Array) => string | null
 ): Promise<GetCookiesResult> {
   const warnings: string[] = [];
@@ -79,7 +80,7 @@ function decryptRawCookiesFromChromiumRows(
   options: GetDBOptions,
   hosts: string[],
   cookieNames: Set<string> | null,
-  browser: BrowserType,
+  browser: BrowserName,
   decryptFn: (encryptedValue: Uint8Array) => string | null,
   warnings: string[] = []
 ): Cookie[] {
@@ -134,7 +135,7 @@ function decryptRawCookiesFromChromiumRows(
         : tryParseInt(row.expires_utc);
 
     // Convert Chrome timestamp to JavaScript timestamp (milliseconds)
-    const expires = normalizeExpiration(expiresUtc, 'chrome');
+    const expires = normalizeExpiration(expiresUtc, 'chromium');
 
     // Check if cookie is expired (if not including expired cookies)
     if (!options.includeExpired && expires && expires < Date.now()) {
@@ -244,8 +245,7 @@ export function normalizeExpiration(
 
   try {
     switch (browser) {
-      case 'chrome':
-      case 'edge': {
+      case 'chromium': {
         // Chrome/Edge: microseconds since 1601-01-01
         // Use bigint arithmetic to avoid precision loss
         const microsBigInt =
