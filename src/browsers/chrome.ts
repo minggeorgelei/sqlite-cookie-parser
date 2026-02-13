@@ -1,7 +1,7 @@
-import { GetCookiesOptions, GetCookiesResult } from '../types.js';
-import { getCookiesFromChromeSqlite } from '../chromeMacCookie.js';
-import { getCookiesFromChromeWindowsSqlite } from '../chromeWindowsCookie.js';
-import { getCookiesFromChromeLinuxSqlite } from '../chromeLinuxCookie.js';
+import { GetCookiesOptions, GetCookiesResult } from '../types';
+import { getCookiesFromChromeSqlite } from '../chromeMacCookie';
+import { getCookiesFromChromeWindowsSqlite } from '../chromeWindowsCookie';
+import { getCookiesFromChromeLinuxSqlite } from '../chromeLinuxCookie';
 
 export async function getCookiesFromChrome(
   options: GetCookiesOptions,

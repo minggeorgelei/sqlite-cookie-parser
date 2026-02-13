@@ -1,13 +1,18 @@
 import { describe, it, expect } from 'vitest';
-import { toCookieHeader } from './publicApi.js';
-import { Cookie } from './types.js';
+import { toCookieHeader } from './publicApi';
+import { Cookie } from './types';
 
 function makeCookie(name: string, value: string): Cookie {
   return {
     name,
     value,
+    domain: '',
+    path: '/',
+    secure: false,
+    httpOnly: false,
     source: {
       browser: 'chrome',
+      cookieFilePath: '/tmp/test/Cookies',
     },
   };
 }

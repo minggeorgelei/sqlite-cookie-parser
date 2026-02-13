@@ -1,5 +1,5 @@
 // macos Chrome / Edge cookie decryption keychain access
-import { executeProcess } from './processExecutor.js';
+import { executeProcess } from './processExecutor';
 
 export async function findMacKeyChainPassword(
   service: string,

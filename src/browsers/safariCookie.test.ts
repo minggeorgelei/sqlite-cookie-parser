@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCookiesFromSafari } from './safariCookie.js';
+import { getCookiesFromSafari } from './safariCookie';
 
 describe('getCookiesFromSafari', () => {
   describe('return structure', () => {

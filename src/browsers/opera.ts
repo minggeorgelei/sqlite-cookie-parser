@@ -1,7 +1,7 @@
-import { GetCookiesOptions, GetCookiesResult } from '../types.js';
-import { getCookiesFromOperaMacSqlite } from '../operaMacCookie.js';
-import { getCookiesFromOperaWindowsSqlite } from '../operaWindowsCookie.js';
-import { getCookiesFromOperaLinuxSqlite } from '../operaLinuxCookie.js';
+import { GetCookiesOptions, GetCookiesResult } from '../types';
+import { getCookiesFromOperaMacSqlite } from '../operaMacCookie';
+import { getCookiesFromOperaWindowsSqlite } from '../operaWindowsCookie';
+import { getCookiesFromOperaLinuxSqlite } from '../operaLinuxCookie';
 
 export async function getCookiesFromOpera(
   options: GetCookiesOptions,

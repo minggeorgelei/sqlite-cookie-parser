@@ -17,9 +17,9 @@ import {
   GetCookiesResult,
   Cookie,
   SameSiteValue,
-  GetDBOptions,
-} from '../types.js';
-import { normalizeExpiration } from '../common.js';
+  GetCookiesFromFileOptions,
+} from '../types';
+import { normalizeExpiration } from '../common';
 
 type FirefoxCookieRow = {
   name?: unknown;
@@ -61,15 +61,15 @@ export async function getCookiesFromFirefoxSqlite(
   // 1. Get persistent cookies from cookies.sqlite
   const sqlDBPath = resolveFirefoxDBPath(options.profile);
   if (sqlDBPath) {
-    const dbOptions: GetDBOptions = {
-      dbPath: sqlDBPath,
+    const fileOptions: GetCookiesFromFileOptions = {
+      cookieFilePath: sqlDBPath,
       profile: options.profile,
       includeExpired: options.includeExpired,
       includePartitioned: options.includePartitioned,
     };
 
     const { cookies: persistentCookies, warnings: dbWarnings } =
-      await getCookiesFromFirefoxSqliteDB(dbOptions, origins, cookieNames);
+      await getCookiesFromFirefoxSqliteDB(fileOptions, origins, cookieNames);
     allCookies.push(...persistentCookies);
     warnings.push(...dbWarnings);
   } else {
@@ -84,7 +84,12 @@ export async function getCookiesFromFirefoxSqlite(
       try {
         const sessionData = readJsonLz4File(sessionStorePath);
         if (sessionData.cookies && Array.isArray(sessionData.cookies)) {
-          const sessionCookies = parseSessionCookies(sessionData.cookies, hosts, cookieNames);
+          const sessionCookies = parseSessionCookies(
+            sessionData.cookies,
+            hosts,
+            cookieNames,
+            sessionStorePath
+          );
           // Avoid duplicates: only add session cookies that don't exist in persistent cookies
           const existingKeys = new Set(allCookies.map((c) => `${c.name}@${c.domain}`));
           for (const sc of sessionCookies) {
@@ -111,7 +116,7 @@ export async function getCookiesFromFirefoxSqlite(
  * Get cookies from a Firefox SQLite database file
  */
 async function getCookiesFromFirefoxSqliteDB(
-  options: GetDBOptions,
+  options: GetCookiesFromFileOptions,
   origins: string[],
   cookieNames: Set<string> | null
 ): Promise<GetCookiesResult> {
@@ -121,7 +126,7 @@ async function getCookiesFromFirefoxSqliteDB(
   const tmpdirPath = mkdtempSync(path.join(tmpdir(), 'sqlite-cookie-firefox-db-'));
   const tempDbPath = path.join(tmpdirPath, 'cookies.sqlite');
   try {
-    copyFileSync(options.dbPath, tempDbPath);
+    copyFileSync(options.cookieFilePath, tempDbPath);
   } catch (error) {
     rmSync(tmpdirPath, { recursive: true, force: true });
     warnings.push(`Failed to copy cookie database: ${(error as Error).message}`);
@@ -155,7 +160,7 @@ async function getCookiesFromFirefoxSqliteDB(
  */
 function parseFirefoxCookieRows(
   rows: FirefoxCookieRow[],
-  options: GetDBOptions,
+  options: GetCookiesFromFileOptions,
   hosts: string[],
   cookieNames: Set<string> | null,
   warnings: string[] = []
@@ -240,7 +245,7 @@ function parseFirefoxCookieRows(
       partitionKey,
       source: {
         browser: 'firefox',
-        profile: options.dbPath,
+        cookieFilePath: options.cookieFilePath,
       },
     };
 
@@ -550,7 +555,8 @@ function readJsonLz4File(filePath: string): FirefoxSessionData {
 function parseSessionCookies(
   sessionCookies: FirefoxSessionCookie[],
   hosts: string[],
-  cookieNames: Set<string> | null
+  cookieNames: Set<string> | null,
+  cookieFilePath: string
 ): Cookie[] {
   const cookies: Cookie[] = [];
 
@@ -588,6 +594,7 @@ function parseSessionCookies(
       httpOnly: sc.httpOnly || false,
       source: {
         browser: 'firefox',
+        cookieFilePath,
       },
     };
 

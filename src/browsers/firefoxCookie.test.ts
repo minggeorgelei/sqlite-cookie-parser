@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCookiesFromFirefoxSqlite } from './firefoxCookie.js';
+import { getCookiesFromFirefoxSqlite } from './firefoxCookie';
 
 describe('getCookiesFromFirefoxSqlite', () => {
   describe('return structure', () => {

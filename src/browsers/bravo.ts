@@ -1,7 +1,7 @@
-import { GetCookiesOptions, GetCookiesResult } from '../types.js';
-import { getCookiesFromBraveMacSqlite } from '../bravoMacCookie.js';
-import { getCookiesFromBraveWindowsSqlite } from '../bravoWindowsCookie.js';
-import { getCookiesFromBraveLinuxSqlite } from '../bravoLinuxCookie.js';
+import { GetCookiesOptions, GetCookiesResult } from '../types';
+import { getCookiesFromBraveMacSqlite } from '../bravoMacCookie';
+import { getCookiesFromBraveWindowsSqlite } from '../bravoWindowsCookie';
+import { getCookiesFromBraveLinuxSqlite } from '../bravoLinuxCookie';
 
 export async function getCookiesFromBrave(
   options: GetCookiesOptions,

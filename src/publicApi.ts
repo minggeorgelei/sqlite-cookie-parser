@@ -1,4 +1,4 @@
-import { Cookie, CookieHeaderOption } from './types.js';
+import { Cookie, CookieHeaderOption } from './types';
 
 /**
  * Convert an array of Cookie objects into a Cookie header string (e.g. "name1=value1; name2=value2")

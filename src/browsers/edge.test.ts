@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCookiesFromEdge } from './edge.js';
+import { getCookiesFromEdge } from './edge';
 
 describe('getCookiesFromEdge', () => {
   describe('return structure', () => {

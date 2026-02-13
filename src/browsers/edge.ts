@@ -1,7 +1,7 @@
-import { GetCookiesOptions, GetCookiesResult } from '../types.js';
-import { getCookiesFromEdgeSqlite } from '../edgeMacCookie.js';
-import { getCookiesFromEdgeWindowsSqlite } from '../edgeWindowsCookie.js';
-import { getCookiesFromEdgeLinuxSqlite } from '../edgeLinuxCookie.js';
+import { GetCookiesOptions, GetCookiesResult } from '../types';
+import { getCookiesFromEdgeSqlite } from '../edgeMacCookie';
+import { getCookiesFromEdgeWindowsSqlite } from '../edgeWindowsCookie';
+import { getCookiesFromEdgeLinuxSqlite } from '../edgeLinuxCookie';
 
 export async function getCookiesFromEdge(
   options: GetCookiesOptions,

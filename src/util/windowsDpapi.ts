@@ -1,5 +1,5 @@
 // Windows DPAPI decryption via PowerShell
-import { executeProcess } from './processExecutor.js';
+import { executeProcess } from './processExecutor';
 
 export async function decryptWindowsDpapi(
   encryptedBytes: Buffer,

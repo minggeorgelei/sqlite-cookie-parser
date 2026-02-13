@@ -1,10 +1,10 @@
 import path from 'path';
 import { readFileSync } from 'fs';
-import { resolveBrowserDefaultorSpecificDBPath } from './util/fileHelper.js';
-import { GetCookiesOptions, GetCookiesResult, GetDBOptions } from './types.js';
-import { decryptWindowsDpapi } from './util/windowsDpapi.js';
-import { decryptChromiumAES256GCMCookieValue } from './util/crypto.js';
-import { getCookiesFromChromiumSqliteDB } from './common.js';
+import { resolveBrowserDefaultorSpecificDBPath } from './util/fileHelper';
+import { GetCookiesOptions, GetCookiesResult, GetCookiesFromFileOptions } from './types';
+import { decryptWindowsDpapi } from './util/windowsDpapi';
+import { decryptChromiumAES256GCMCookieValue } from './util/crypto';
+import { getCookiesFromChromiumSqliteDB } from './common';
 
 export async function getCookiesFromOperaWindowsSqlite(
   options: GetCookiesOptions,
@@ -33,14 +33,14 @@ export async function getCookiesFromOperaWindowsSqlite(
     return decryptChromiumAES256GCMCookieValue(encryptedValue, key);
   };
 
-  const dbOptions: GetDBOptions = {
-    dbPath: sqlDBPath,
+  const fileOptions: GetCookiesFromFileOptions = {
+    cookieFilePath: sqlDBPath,
   };
-  dbOptions.profile = options.profile;
-  dbOptions.includeExpired = options.includeExpired;
+  fileOptions.profile = options.profile;
+  fileOptions.includeExpired = options.includeExpired;
 
   const { cookies, warnings: dbWarnings } = await getCookiesFromChromiumSqliteDB(
-    dbOptions,
+    fileOptions,
     origins,
     cookieNames,
     'opera',

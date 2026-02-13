@@ -2,11 +2,10 @@ import {
   GetCookiesResult,
   Cookie,
   SameSiteValue,
-  GetDBOptions,
+  GetCookiesFromFileOptions,
   BrowserName,
   BrowserType,
-  GetCookiesOptions,
-} from './types.js';
+} from './types';
 import { tmpdir } from 'os';
 import { copyFileSync, existsSync, mkdtempSync, rmSync } from 'fs';
 import path from 'path';
@@ -27,7 +26,7 @@ type ChromeCookieRow = {
 };
 
 export async function getCookiesFromChromiumSqliteDB(
-  options: GetDBOptions,
+  options: GetCookiesFromFileOptions,
   origins: string[],
   cookieNames: Set<string> | null,
   browser: BrowserName,
@@ -38,7 +37,7 @@ export async function getCookiesFromChromiumSqliteDB(
   const tmpdirPath = mkdtempSync(path.join(tmpdir(), 'sqlite-cookie-chromium-db-'));
   const tempDbPath = path.join(tmpdirPath, 'Cookies');
   try {
-    copyFileSync(options.dbPath, tempDbPath);
+    copyFileSync(options.cookieFilePath, tempDbPath);
   } catch (error) {
     rmSync(tmpdirPath, { recursive: true, force: true });
     warnings.push(`Failed to copy cookie database: ${(error as Error).message}`);
@@ -77,7 +76,7 @@ export async function getCookiesFromChromiumSqliteDB(
 
 function decryptRawCookiesFromChromiumRows(
   rows: ChromeCookieRow[],
-  options: GetDBOptions,
+  options: GetCookiesFromFileOptions,
   hosts: string[],
   cookieNames: Set<string> | null,
   browser: BrowserName,
@@ -169,7 +168,7 @@ function decryptRawCookiesFromChromiumRows(
       partitionKey,
       source: {
         browser,
-        profile: options.dbPath,
+        cookieFilePath: options.cookieFilePath,
       },
     };
 

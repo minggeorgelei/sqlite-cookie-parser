@@ -7,22 +7,22 @@ export interface Cookie {
   /** Cookie value (null if encrypted and decryption failed) */
   value: string | null;
   /** Cookie domain */
-  domain?: string;
+  domain: string;
   /** Cookie path */
-  path?: string;
-  /** Expiration date (null if session cookie) */
+  path: string;
+  /** Expiration date (undefined if session cookie) */
   expires?: number;
   /** Whether cookie requires HTTPS */
-  secure?: boolean;
+  secure: boolean;
   /** Whether cookie is HTTP-only */
-  httpOnly?: boolean;
+  httpOnly: boolean;
   /** SameSite attribute */
   sameSite?: SameSiteValue;
   /** Partition key (CHIPS) - the top-level site that partitions this cookie, empty for unpartitioned cookies */
   partitionKey?: string;
   source: {
     browser: BrowserName;
-    profile?: string;
+    cookieFilePath: string;
   };
 }
 
@@ -44,7 +44,7 @@ export interface GetCookiesOptions {
   includePartitioned?: boolean;
 }
 
-export type GetDBOptions = GetCookiesOptions & { dbPath: string };
+export type GetCookiesFromFileOptions = GetCookiesOptions & { cookieFilePath: string };
 
 export interface GetCookiesResult {
   cookies: Cookie[];

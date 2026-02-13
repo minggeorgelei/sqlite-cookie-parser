@@ -1,9 +1,9 @@
-import { GetCookiesOptions, GetCookiesResult, GetDBOptions } from './types.js';
+import { GetCookiesOptions, GetCookiesResult, GetCookiesFromFileOptions } from './types';
 import { homedir } from 'os';
-import { resolveBrowserDefaultorSpecificDBPath } from './util/fileHelper.js';
-import { findFirstMacKeyChainPassword } from './util/macKeyChain.js';
-import { getAES128CBCKey, decryptChomiumAES128CBCCookieValue } from './util/crypto.js';
-import { getCookiesFromChromiumSqliteDB } from './common.js';
+import { resolveBrowserDefaultorSpecificDBPath } from './util/fileHelper';
+import { findFirstMacKeyChainPassword } from './util/macKeyChain';
+import { getAES128CBCKey, decryptChomiumAES128CBCCookieValue } from './util/crypto';
+import { getCookiesFromChromiumSqliteDB } from './common';
 
 export async function getCookiesFromEdgeSqlite(
   options: GetCookiesOptions,
@@ -43,14 +43,14 @@ export async function getCookiesFromEdgeSqlite(
     return decryptChomiumAES128CBCCookieValue(encryptedValue, [key]);
   };
 
-  const dbOptions: GetDBOptions = {
-    dbPath: sqlDBPath,
+  const fileOptions: GetCookiesFromFileOptions = {
+    cookieFilePath: sqlDBPath,
   };
-  dbOptions.profile = options.profile;
-  dbOptions.includeExpired = options.includeExpired;
+  fileOptions.profile = options.profile;
+  fileOptions.includeExpired = options.includeExpired;
 
   const { cookies, warnings: dbWarnings } = await getCookiesFromChromiumSqliteDB(
-    dbOptions,
+    fileOptions,
     origins,
     cookieNames,
     'edge',

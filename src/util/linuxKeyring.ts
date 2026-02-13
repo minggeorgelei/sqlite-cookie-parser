@@ -1,5 +1,5 @@
 // Linux keyring password retrieval via secret-tool (libsecret)
-import { executeProcess } from './processExecutor.js';
+import { executeProcess } from './processExecutor';
 
 const LINUX_DEFAULT_PASSWORD = 'peanuts';
 

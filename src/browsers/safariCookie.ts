@@ -1,8 +1,8 @@
 import { homedir, tmpdir } from 'os';
 import { copyFileSync, mkdtempSync, rmSync, existsSync, readFileSync, statSync } from 'fs';
 import path from 'path';
-import { GetCookiesOptions, GetCookiesResult, Cookie, GetDBOptions } from '../types.js';
-import { normalizeExpiration } from '../common.js';
+import { GetCookiesOptions, GetCookiesResult, Cookie, GetCookiesFromFileOptions } from '../types';
+import { normalizeExpiration } from '../common';
 
 /**
  * Safari BinaryCookies file format:
@@ -92,12 +92,12 @@ export async function getCookiesFromSafari(
   try {
     const fileBuffer = readFileSync(tempFilePath);
     const rawCookies = parseBinaryCookies(fileBuffer);
-    const dbOptions: GetDBOptions = {
-      dbPath: cookieFilePath,
+    const fileOptions: GetCookiesFromFileOptions = {
+      cookieFilePath,
       profile: options.profile,
       includeExpired: options.includeExpired,
     };
-    const cookies = filterAndConvertCookies(rawCookies, dbOptions, hosts, cookieNames);
+    const cookies = filterAndConvertCookies(rawCookies, fileOptions, hosts, cookieNames);
 
     rmSync(tmpdirPath, { recursive: true, force: true });
 
@@ -265,7 +265,7 @@ function readNullTerminatedString(buffer: Buffer, offset: number): string {
  */
 function filterAndConvertCookies(
   rawCookies: RawSafariCookie[],
-  options: GetDBOptions,
+  options: GetCookiesFromFileOptions,
   hosts: string[],
   cookieNames: Set<string> | null
 ): Cookie[] {
@@ -309,7 +309,7 @@ function filterAndConvertCookies(
       httpOnly: raw.httpOnly,
       source: {
         browser: 'safari',
-        profile: options.dbPath,
+        cookieFilePath: options.cookieFilePath,
       },
     };
 

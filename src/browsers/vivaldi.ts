@@ -1,7 +1,7 @@
-import { GetCookiesOptions, GetCookiesResult } from '../types.js';
-import { getCookiesFromVivaldiMacSqlite } from '../vivaldiMacCookie.js';
-import { getCookiesFromVivaldiWindowsSqlite } from '../vivaldiWindowsCookie.js';
-import { getCookiesFromVivaldiLinuxSqlite } from '../vivaldiLinuxCookie.js';
+import { GetCookiesOptions, GetCookiesResult } from '../types';
+import { getCookiesFromVivaldiMacSqlite } from '../vivaldiMacCookie';
+import { getCookiesFromVivaldiWindowsSqlite } from '../vivaldiWindowsCookie';
+import { getCookiesFromVivaldiLinuxSqlite } from '../vivaldiLinuxCookie';
 
 export async function getCookiesFromVivaldi(
   options: GetCookiesOptions,

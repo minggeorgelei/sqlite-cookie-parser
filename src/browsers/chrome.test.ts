@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCookiesFromChrome } from './chrome.js';
+import { getCookiesFromChrome } from './chrome';
 
 describe('getCookiesFromChrome', () => {
   describe('return structure', () => {
