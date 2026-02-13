@@ -52,15 +52,21 @@ export interface GetCookiesResult {
 }
 
 /**
- * Options for toCookieHeader
+ * Parameters for getCookiesFromBrowser
  */
-export interface ToCookieHeaderOptions {
-  /** Filter cookies by domain */
-  domain?: string;
-  /** Filter cookies by path (default: '/') */
-  path?: string;
-  /** Whether the request is over HTTPS (default: false) */
-  secure?: boolean;
+export interface GetCookiesFromBrowserParams {
+  /** Origins to extract cookies for (e.g. ['https://example.com']) */
+  origins: string[];
+  /** Filter by cookie names. If omitted, all cookies are returned */
+  cookieNames?: string[];
+  /** Browser to extract cookies from */
+  browserName: BrowserName;
+  /** Browser profile name (default: 'Default') */
+  profile?: string;
+  /** Whether to include expired cookies (default: false) */
+  includeExpired?: boolean;
+  /** Whether to include partitioned cookies (CHIPS) (default: false) */
+  includePartitioned?: boolean;
 }
 
 /**
