@@ -42,7 +42,6 @@ export function resolveBrowserDefaultorSpecificDBPath(
           const lastActiveProfiles = localState?.profile?.last_active_profiles;
           if (Array.isArray(lastActiveProfiles) && lastActiveProfiles.length > 0) {
             profileDir = lastActiveProfiles[0];
-            break;
           }
         } catch {
           // ignore and try next root or fall back to Default
