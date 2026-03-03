@@ -1,6 +1,6 @@
 import path from 'path';
 import { homedir } from 'os';
-import { existsSync, statSync } from 'fs';
+import { existsSync, readFileSync, statSync } from 'fs';
 
 export function normalizePath(pathStr: string): string {
   if (pathStr.startsWith('~/')) {
@@ -33,8 +33,24 @@ export function resolveBrowserDefaultorSpecificDBPath(
     }
   }
   if (!isProfileDir) {
-    const profileDir = profile || 'Default';
     for (const root of roots) {
+      let profileDir = profile;
+      if (!profileDir) {
+        try {
+          const localStatePath = path.join(root, 'Local State');
+          const localState = JSON.parse(readFileSync(localStatePath, 'utf8'));
+          const lastActiveProfiles = localState?.profile?.last_active_profiles;
+          if (Array.isArray(lastActiveProfiles) && lastActiveProfiles.length > 0) {
+            profileDir = lastActiveProfiles[0];
+            break;
+          }
+        } catch {
+          // ignore and try next root or fall back to Default
+        }
+      }
+      if (!profileDir) {
+        profileDir = 'Default';
+      }
       const candidate1 = path.join(root, profileDir, 'Cookies');
       candidates.push(candidate1);
       const candidate2 = path.join(root, profileDir, 'Network', 'Cookies');

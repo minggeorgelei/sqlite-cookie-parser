@@ -1,6 +1,6 @@
 {
   "name": "sqlite-cookie-parser",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Extract cookies from browser profiles and convert to request headers",
   "type": "module",
   "main": "./dist/index.js",
@@ -32,8 +32,13 @@
     "typescript"
   ],
   "tsup": {
-    "entry": ["src/**/*.ts", "!src/**/*.test.ts"],
-    "format": ["esm"],
+    "entry": [
+      "src/**/*.ts",
+      "!src/**/*.test.ts"
+    ],
+    "format": [
+      "esm"
+    ],
     "dts": true,
     "sourcemap": true,
     "clean": true
