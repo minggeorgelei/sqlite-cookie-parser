@@ -435,8 +435,16 @@ function resolveFirefoxDBPath(profile?: string): string | null {
     return null;
   }
 
-  // No profile specified, try to find the default profile
-  // Prefer default-release profile, then default profile, then any profile
+  // No profile specified: try active profile from installs.ini/profiles.ini first
+  const activeDir = getFirefoxActiveProfileDir();
+  if (activeDir) {
+    const cookiePath = path.join(activeDir, 'cookies.sqlite');
+    if (existsSync(cookiePath)) {
+      return cookiePath;
+    }
+  }
+
+  // Fallback: prefer default-release profile, then default profile, then any profile
   const defaultRelease = profileDirs.find((dir) => dir.endsWith('.default-release'));
   if (defaultRelease) {
     const cookiePath = path.join(defaultRelease, 'cookies.sqlite');
@@ -492,6 +500,49 @@ function getFirefoxProfileDirs(profilesDir: string): string[] {
   } catch {
     return [];
   }
+}
+
+/**
+ * Get the active Firefox profile directory by reading installs.ini and profiles.ini.
+ * Returns the absolute path to the active profile directory, or null if not found.
+ */
+function getFirefoxActiveProfileDir(): string | null {
+  const homeDir = homedir();
+  const platform = process.platform;
+
+  let firefoxDataDir: string;
+  if (platform === 'darwin') {
+    firefoxDataDir = path.join(homeDir, 'Library', 'Application Support', 'Firefox');
+  } else if (platform === 'linux') {
+    firefoxDataDir = path.join(homeDir, '.mozilla', 'firefox');
+  } else if (platform === 'win32') {
+    const appData = process.env.APPDATA || path.join(homeDir, 'AppData', 'Roaming');
+    firefoxDataDir = path.join(appData, 'Mozilla', 'Firefox');
+  } else {
+    return null;
+  }
+
+  // Try installs.ini first (most reliable for active profile)
+  const installsIni = path.join(firefoxDataDir, 'installs.ini');
+  const profilesIni = path.join(firefoxDataDir, 'profiles.ini');
+
+  for (const iniPath of [installsIni, profilesIni]) {
+    try {
+      const content = readFileSync(iniPath, 'utf8');
+      const defaultMatch = content.match(/^Default\s*=\s*(.+)$/m);
+      if (defaultMatch) {
+        const profileRelPath = defaultMatch[1].trim();
+        const profileAbsPath = path.join(firefoxDataDir, profileRelPath);
+        if (existsSync(profileAbsPath)) {
+          return profileAbsPath;
+        }
+      }
+    } catch {
+      // ignore and try next
+    }
+  }
+
+  return null;
 }
 
 function findFirefoxProfileDirs(profileDirs: string[], profileName: string): string[] {
@@ -636,7 +687,13 @@ function resolveFirefoxProfileDir(profile?: string): string | null {
     return null;
   }
 
-  // No profile specified, try to find the default profile
+  // No profile specified: try active profile from installs.ini/profiles.ini first
+  const activeDir = getFirefoxActiveProfileDir();
+  if (activeDir && existsSync(activeDir)) {
+    return activeDir;
+  }
+
+  // Fallback: prefer default-release, then default, then any
   const defaultRelease = profileDirs.find((dir) => dir.endsWith('.default-release'));
   if (defaultRelease) {
     return defaultRelease;
