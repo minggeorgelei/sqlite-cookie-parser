@@ -1,6 +1,6 @@
 {
   "name": "sqlite-cookie-parser",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Extract cookies from browser profiles and convert to request headers",
   "type": "module",
   "main": "./dist/index.js",
