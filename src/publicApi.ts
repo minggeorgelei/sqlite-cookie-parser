@@ -21,13 +21,13 @@ import { getCookiesFromVivaldi } from './browsers/vivaldi';
  *   - sortByName: sort cookies alphabetically by name
  * @returns A formatted Cookie header string
  */
-export function toCookieHeader(cookies: Cookie[], options: CookieHeaderOption): string {
+export function toCookieHeader(cookies: Cookie[], options?: CookieHeaderOption): string {
   const items = cookies.map((cookie) => ({ name: cookie.name, value: cookie.value }));
-  if (options.sortByName) {
+  if (options?.sortByName) {
     items.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  if (options.removeDuplicates) {
+  if (options?.removeDuplicates) {
     const seen = new Set<string>();
     const uniqueItems = [];
     for (const item of items) {
