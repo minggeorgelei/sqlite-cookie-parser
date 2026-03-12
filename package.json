@@ -1,6 +1,6 @@
 {
   "name": "sqlite-cookie-parser",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Extract cookies from browser profiles and convert to request headers",
   "type": "module",
   "main": "./dist/index.js",
@@ -15,9 +15,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "example": "tsup && node dist/example.js",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "example": "tsc && node dist/example.js",
     "prepublishOnly": "npm run build",
     "format": "prettier --write \"src/**/*.{ts,js,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,js,json}\""
@@ -31,18 +31,6 @@
     "sqlite",
     "typescript"
   ],
-  "tsup": {
-    "entry": [
-      "src/**/*.ts",
-      "!src/**/*.test.ts"
-    ],
-    "format": [
-      "esm"
-    ],
-    "dts": true,
-    "sourcemap": true,
-    "clean": true
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/minggeorgelei/sqlite-cookie-parser.git"
@@ -58,7 +46,6 @@
     "@types/lz4": "^0.6.4",
     "@types/node": "^22.0.0",
     "prettier": "^3.8.1",
-    "tsup": "^8.5.1",
     "typescript": "^5.7.0",
     "vitest": "^4.0.18"
   }
